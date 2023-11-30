@@ -1,6 +1,8 @@
 ---
 version: "3.9"
+
 services:
+
   duckdns:
     image: lscr.io/linuxserver/duckdns:latest
     container_name: duckdns
@@ -9,10 +11,21 @@ services:
       - PUID=1000 #optional
       - PGID=1000 #optional
       - TZ=CEST #optional
-      - SUBDOMAINS=subdomain1,subdomain2
-      - TOKEN=token
+      - SUBDOMAINS=${SUBDOMAIN1}
+      - TOKEN=d0012766-de71-491f-881e-be36452a9f52
       - UPDATE_IP=ipv4 #optional
       - LOG_FILE=true #optional
     volumes:
       - ./config/duckdns:/config #optional
     restart: unless-stopped
+
+  sftp:
+    image: jmcombs/sftp
+    volumes:
+        - /etc/ssh/ssh_host_ed25519_key:/etc/ssh/ssh_host_ed25519_key \
+        - /etc/ssh/ssh_host_rsa_key:/etc/ssh/ssh_host_rsa_key \
+        - /home/${DIR_USER}/.ssh/keys/ssh_ed25519_phone.pub:/home/${DIR_USER}/.ssh/keys/ssh_ed25519_phone.pub:ro \
+        - /home/${DIR_USER}/sftp/:/home/${DIR_USER}/upload/
+    ports:
+        - "2222:22"
+    command: '${SFTP_USERNAME}::1001'
