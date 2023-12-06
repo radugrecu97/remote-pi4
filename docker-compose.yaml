@@ -24,8 +24,38 @@ services:
     volumes:
         - /etc/ssh/ssh_host_ed25519_key:/etc/ssh/ssh_host_ed25519_key \
         - /etc/ssh/ssh_host_rsa_key:/etc/ssh/ssh_host_rsa_key \
-        - /home/${DIR_USER}/.ssh/keys/ssh_ed25519_phone.pub:/home/${DIR_USER}/.ssh/keys/ssh_ed25519_phone.pub:ro \
-        - /home/${DIR_USER}/sftp/:/home/${DIR_USER}/upload/
+        - /home/${DIR_USER}/.ssh/keys/id_rsa_phone.pub:/home/${DIR_USER}/.ssh/keys/id_rsa_phone.pub:ro \
+        - /home/${DIR_USER}/sftp/upload/piano_sheets:/home/${DIR_USER}/upload/piano_sheets
+        - /home/${DIR_USER}/sftp/upload/manga:/home/${DIR_USER}/upload/manga
+        - /home/${DIR_USER}/sftp/calibre:/home/${DIR_USER}/upload/
     ports:
         - "2222:22"
     command: '${SFTP_USERNAME}::1001'
+
+
+  wireguard:
+    image: lscr.io/linuxserver/wireguard:latest
+    container_name: wireguard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=CEST
+      - SERVERURL=${SUBDOMAIN1} #optional
+      - SERVERPORT=51820 #optional
+      - PEERS=phone #optional
+      - PEERDNS=1.1.1.1 #optional
+      - INTERNAL_SUBNET=${WIREGUARD_SUBNET} #optional
+      - ALLOWEDIPS=${WIREGUARD_SUBNET}/24,${LAN_SUBNET}/24 #optional
+      - PERSISTENTKEEPALIVE_PEERS=all #optional
+      - LOG_CONFS=true #optional
+    volumes:
+      - ./config/wireguard:/config
+      - /lib/modules:/lib/modules #optional
+    ports:
+      - 51820:51820/udp
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    restart: unless-stopped
