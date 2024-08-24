@@ -19,20 +19,6 @@ services:
       - ./config/duckdns:/config #optional
     restart: unless-stopped
 
-  sftp:
-    image: jmcombs/sftp
-    volumes:
-        - /etc/ssh/ssh_host_ed25519_key:/etc/ssh/ssh_host_ed25519_key \
-        - /etc/ssh/ssh_host_rsa_key:/etc/ssh/ssh_host_rsa_key \
-        - /home/${DIR_USER}/.ssh/keys/id_rsa_phone.pub:/home/${DIR_USER}/.ssh/keys/id_rsa_phone.pub:ro \
-        - /home/${DIR_USER}/sftp/upload/piano_sheets:/home/${DIR_USER}/upload/piano_sheets
-        - /home/${DIR_USER}/sftp/upload/manga:/home/${DIR_USER}/upload/manga
-        - /home/${DIR_USER}/sftp/calibre:/home/${DIR_USER}/upload/
-    ports:
-        - "2222:22"
-    command: '${SFTP_USERNAME}::1001'
-
-
   wireguard:
     image: lscr.io/linuxserver/wireguard:latest
     container_name: wireguard
